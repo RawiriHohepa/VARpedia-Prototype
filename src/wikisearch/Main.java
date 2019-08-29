@@ -11,7 +11,7 @@ import java.io.BufferedReader;
 public class Main {
 	public static void main(String[] args) {
 		try {
-			ProcessBuilder builder = new ProcessBuilder("/bin/bash", "-c", "./script.sh");
+			ProcessBuilder builder = new ProcessBuilder("/bin/bash", "-c", "./script.sh p");
 			Process process = builder.start();
 			InputStream stdout = process.getInputStream();
 			InputStream stderr = process.getErrorStream();
