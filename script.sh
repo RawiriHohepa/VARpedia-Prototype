@@ -17,10 +17,12 @@ case $1 in
 		list
 		;;
 	p|P)
-		play
+		selected_creation=$2		
+		play $selected_creation
 		;;
 	d|D)
-		delete
+		selected_creation=$2
+		delete $selected_creation
 		;;
 	c|C)
 		create

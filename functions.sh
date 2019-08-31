@@ -33,11 +33,20 @@ list() {
 }
 
 play() {
-	echo "play" $1
+	selected_creation_filename=$1
+	selected_creation_dir=$CREATIONS_DIR/$selected_creation_filename.mp4
+	ffplay -autoexit $selected_creation_dir &> /dev/null
+	
+	if [ "$?" -ne 0 ]
+	then
+		echo "Error playing video." >&2
+	fi
 }
 
 delete() {
-	echo "delete" $1
+	selected_creation_filename=$1
+	selected_creation_dir=$CREATIONS_DIR/$selected_creation_filename.mp4
+	rm -f $selected_creation_dir
 }
 
 create() {
