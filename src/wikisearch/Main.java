@@ -6,15 +6,69 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 
 import javafx.application.Application;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.geometry.Insets;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.FlowPane;
 import javafx.stage.Stage;
 
 import java.io.BufferedReader;
 
 public class Main extends Application {
+	Button btnCreate = new Button("Create New Creation");
+	Button btnPlay = new Button("Play Selected Creation");
+	Button btnDelete = new Button("Delete Selected Creation");
+	
 	@Override
-	public void start(Stage arg0) throws Exception {
-		// TODO Auto-generated method stub
+	public void start(Stage primaryStage) throws Exception {
+		final double sceneWidth = 1200;
+		final double sceneHeight = 800;
+		final double buttonsPaneHGap = 50;
+		final double buttonsPaneMargin = 50;
+		final double buttonsWidth = (sceneWidth - 2*buttonsPaneMargin - 2*buttonsPaneHGap) / 3 - 1;
 		
+		BorderPane root = new BorderPane();
+		Scene scene = new Scene(root, sceneWidth, sceneHeight);
+		
+		FlowPane buttonsPane = new FlowPane();
+		root.setTop(buttonsPane);
+		buttonsPane.setHgap(buttonsPaneHGap);
+		BorderPane.setMargin(buttonsPane, new Insets(buttonsPaneMargin));
+		
+		
+		buttonsPane.getChildren().add(btnCreate);
+		btnCreate.setPrefWidth(buttonsWidth);
+		btnCreate.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				System.out.println("Create");
+			}
+		});
+		
+		buttonsPane.getChildren().add(btnPlay);
+		btnPlay.setPrefWidth(buttonsWidth);
+		btnPlay.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				System.out.println("Play");
+			}
+		});
+		
+		buttonsPane.getChildren().add(btnDelete);
+		btnDelete.setPrefWidth(buttonsWidth);
+		btnDelete.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				System.out.println("Delete");
+			}
+		});
+		
+		//scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+		primaryStage.setScene(scene);
+		primaryStage.show();
 	}
 	
 	public static void main(String[] args) {
@@ -28,9 +82,13 @@ public class Main extends Application {
 			while ((line = stdoutBuffered.readLine()) != null ) {
 				System.out.println(line);
 			}
+			
+			
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
+		
+		launch(args);
 	}
 
 	
