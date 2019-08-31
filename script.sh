@@ -2,7 +2,7 @@
 
 source ./functions.sh
 
-print_menu
+#print_menu
 
 case $1 in
 	l|L)
