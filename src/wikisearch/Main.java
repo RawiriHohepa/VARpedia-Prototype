@@ -4,6 +4,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 import javafx.application.Application;
 import javafx.event.ActionEvent;
@@ -47,26 +49,31 @@ public class Main extends Application {
 	}
 
 	public static void main(String[] args) {
-		try {
-			ProcessBuilder builder = new ProcessBuilder("/bin/bash", "-c", "./script.sh p");
-			Process process = builder.start();
-			InputStream stdout = process.getInputStream();
-			InputStream stderr = process.getErrorStream();
-			BufferedReader stdoutBuffered = new BufferedReader(new InputStreamReader(stdout));
-			String line = null;
-			while ((line = stdoutBuffered.readLine()) != null ) {
-				System.out.println(line);
-			}
-
-
-		} catch(Exception e) {
-			e.printStackTrace();
-		}
-
+		List<String> output = buildProcess(new String[]{"/bin/bash", "-c", "./script.sh p"});
+		System.out.println(output);
+		
 		launch(args);
 	}
 
-	public void populateButtonsPane(FlowPane buttonsPane, double buttonsWidth) {
+	private static List<String> buildProcess(String[] command) {
+		List<String> output = new ArrayList<String>();
+		try {
+			ProcessBuilder builder = new ProcessBuilder();
+			Process process = builder.start();
+			InputStream stdout = process.getInputStream();
+//			InputStream stderr = process.getErrorStream();
+			BufferedReader stdoutBuffered = new BufferedReader(new InputStreamReader(stdout));
+			String line = null;
+			while ((line = stdoutBuffered.readLine()) != null ) {
+				output.add(line);
+			}
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+		return output;
+	}
+	
+	private void populateButtonsPane(FlowPane buttonsPane, double buttonsWidth) {
 		buttonsPane.getChildren().add(btnCreate);
 		btnCreate.setPrefWidth(buttonsWidth);
 		btnCreate.setOnAction(new EventHandler<ActionEvent>() {
