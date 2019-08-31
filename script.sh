@@ -21,7 +21,7 @@ case $1 in
 		play $selected_creation
 		;;
 	d|D)
-		selected_creation=$2		
+		selected_creation=$2
 		delete $selected_creation
 		;;
 	c|C)

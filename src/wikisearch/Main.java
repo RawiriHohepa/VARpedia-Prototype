@@ -6,13 +6,17 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.ScrollPane;
@@ -138,6 +142,14 @@ public class Main extends Application {
 			@Override
 			public void handle(ActionEvent event) {
 				String selectedCreation = creationsGroup.getSelectedToggle().getUserData().toString();
+				if (selectedCreation != "No Creation Selected") {
+					Alert alert = new Alert(AlertType.CONFIRMATION, "Are you sure you want to delete " + selectedCreation + "?");
+					Optional<ButtonType> result = alert.showAndWait();
+					if (result.isPresent() && result.get() == ButtonType.OK) {
+						System.out.println(runBashCommand(new String[]{"/bin/bash", "-c", "./script.sh d " + selectedCreation}));
+					}
+				}
+				
 				System.out.println("Delete");
 				System.out.println(selectedCreation);
 			}

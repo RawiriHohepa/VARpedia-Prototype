@@ -44,7 +44,9 @@ play() {
 }
 
 delete() {
-	echo "delete" $1
+	selected_creation_filename=$1
+	selected_creation_dir=$CREATIONS_DIR/$selected_creation_filename.mp4
+	rm -f $selected_creation_dir
 }
 
 create() {
