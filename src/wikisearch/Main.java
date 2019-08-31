@@ -14,6 +14,9 @@ import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.RadioButton;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 import javafx.stage.Stage;
@@ -24,8 +27,8 @@ public class Main extends Application {
 	Button btnCreate = new Button("Create New Creation");
 	Button btnPlay = new Button("Play Selected Creation");
 	Button btnDelete = new Button("Delete Selected Creation");
-	Label numCreations = new Label("");
-
+	ToggleGroup creationsGroup = new ToggleGroup();
+	
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		final double sceneWidth = 1200;
@@ -43,13 +46,40 @@ public class Main extends Application {
 		BorderPane.setMargin(buttonsPane, new Insets(buttonsPaneMargin));
 
 		populateButtonsPane(buttonsPane, buttonsWidth);
-
-		root.setCenter(numCreations);
-		List<String> output = runBashCommand(new String[]{"/bin/bash", "-c", "./script.sh l"});
-		for (String line : output) {
+		
+		// The first element in listOfCreations is the number of creations it contains
+		List<String> listOfCreations = runBashCommand(new String[]{"/bin/bash", "-c", "./script.sh l"});
+		for (String line : listOfCreations) {
 			System.out.println(line);
 		}
-		numCreations.setText(output.get(0));
+		int numberOfCreations = Integer.parseInt(listOfCreations.get(0));
+		
+		
+		RadioButton noSelection = new RadioButton("No Creation Selected");
+	    noSelection.setToggleGroup(creationsGroup);
+	    noSelection.setSelected(true);
+	    
+		if (numberOfCreations == 0) {
+			Label noCreations = new Label("There are currently no creations.");
+			root.setCenter(noCreations);
+			noCreations.setScaleX(3);
+			noCreations.setScaleY(3);
+		} else {
+			ScrollPane creationsWindow = new ScrollPane();
+			root.setCenter(creationsWindow);
+			
+			FlowPane creationsGrid = new FlowPane();
+			creationsWindow.setContent(creationsGrid);
+			
+			
+//			List<RadioButton> creations = new ArrayList<RadioButton>();
+			for (int i = 1; i <= numberOfCreations; i++) {
+				RadioButton button = new RadioButton(listOfCreations.get(i));
+//				creations.add(button);
+				button.setToggleGroup(creationsGroup);
+				creationsGrid.getChildren().add(button);
+			}
+		}
 		
 		//scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 		primaryStage.setScene(scene);
@@ -57,12 +87,6 @@ public class Main extends Application {
 	}
 
 	public static void main(String[] args) {
-		List<String> output = runBashCommand(new String[]{"/bin/bash", "-c", "./script.sh p"});
-		for (String line : output) {
-			System.out.println(line);
-		}
-		
-		
 		launch(args);
 	}
 	
@@ -100,6 +124,7 @@ public class Main extends Application {
 			@Override
 			public void handle(ActionEvent event) {
 				System.out.println("Play");
+				System.out.println(creationsGroup.getSelectedToggle().toString());
 			}
 		});
 
@@ -109,6 +134,7 @@ public class Main extends Application {
 			@Override
 			public void handle(ActionEvent event) {
 				System.out.println("Delete");
+				System.out.println(creationsGroup.getSelectedToggle().toString());
 			}
 		});
 	}
