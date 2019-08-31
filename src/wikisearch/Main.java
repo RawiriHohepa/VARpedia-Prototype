@@ -127,17 +127,18 @@ public class Main extends Application {
 		btnPlay.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
-				System.out.println("Play");
 				String selectedCreation = creationsGroup.getSelectedToggle().getUserData().toString();
-				System.out.println(selectedCreation);
+				if (selectedCreation != "No Creation Selected") {
+					runBashCommand(new String[]{"/bin/bash", "-c", "./script.sh p " + selectedCreation});
+				}
 			}
 		});
 		
 		btnDelete.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
-				System.out.println("Delete");
 				String selectedCreation = creationsGroup.getSelectedToggle().getUserData().toString();
+				System.out.println("Delete");
 				System.out.println(selectedCreation);
 			}
 		});
