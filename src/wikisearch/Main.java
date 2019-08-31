@@ -13,6 +13,7 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 import javafx.stage.Stage;
@@ -23,6 +24,7 @@ public class Main extends Application {
 	Button btnCreate = new Button("Create New Creation");
 	Button btnPlay = new Button("Play Selected Creation");
 	Button btnDelete = new Button("Delete Selected Creation");
+	Label numCreations = new Label("");
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
@@ -42,14 +44,20 @@ public class Main extends Application {
 
 		populateButtonsPane(buttonsPane, buttonsWidth);
 
-
+		root.setCenter(numCreations);
+		List<String> output = runBashCommand(new String[]{"/bin/bash", "-c", "./script.sh l"});
+		for (String line : output) {
+			System.out.println(line);
+		}
+		numCreations.setText(output.get(0));
+		
 		//scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 		primaryStage.setScene(scene);
 		primaryStage.show();
 	}
 
 	public static void main(String[] args) {
-		List<String> output = buildProcess(new String[]{"/bin/bash", "-c", "./script.sh p"});
+		List<String> output = runBashCommand(new String[]{"/bin/bash", "-c", "./script.sh p"});
 		for (String line : output) {
 			System.out.println(line);
 		}
@@ -57,8 +65,8 @@ public class Main extends Application {
 		
 		launch(args);
 	}
-
-	private static List<String> buildProcess(String[] command) {
+	
+	private static List<String> runBashCommand(String[] command) {
 		List<String> output = new ArrayList<String>();
 		try {
 			ProcessBuilder builder = new ProcessBuilder(command);
