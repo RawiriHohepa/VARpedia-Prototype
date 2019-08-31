@@ -12,6 +12,7 @@ import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -20,6 +21,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
@@ -38,6 +40,8 @@ public class Main extends Application {
 	
 	final double creationsPadding = 25;
 	
+	BorderPane root = new BorderPane();
+	
 	Button btnCreate = new Button("Create New Creation");
 	Button btnPlay = new Button("Play Selected Creation");
 	Button btnDelete = new Button("Delete Selected Creation");
@@ -47,7 +51,6 @@ public class Main extends Application {
 	
 	@Override
 	public void start(Stage primaryStage) throws Exception {
-		BorderPane root = new BorderPane();
 		Scene scene = new Scene(root, sceneWidth, sceneHeight);
 
 		FlowPane buttonsPane = new FlowPane();
@@ -56,30 +59,8 @@ public class Main extends Application {
 		BorderPane.setMargin(buttonsPane, new Insets(buttonsPaneMargin));
 		populateButtonsPane(buttonsPane, buttonsWidth);
 		
-		noSelection.setUserData("No Creation Selected");
-		noSelection.setToggleGroup(creationsGroup);
-	    noSelection.setSelected(true);
-		
-		// The first element in listOfCreations is the number of creations it contains
-		List<String> listOfCreations = runBashCommand(new String[]{"/bin/bash", "-c", "./script.sh l"});
-//		for (String line : listOfCreations) {
-//			System.out.println(line);
-//		}
-		int numberOfCreations = Integer.parseInt(listOfCreations.get(0));
-		
-		if (numberOfCreations == 0) {
-			Label noCreations = new Label("There are currently no creations.");
-			noCreations.setScaleX(3);
-			noCreations.setScaleY(3);
-			
-			root.setCenter(noCreations);
-		} else {
-			ScrollPane creationsWindow = new ScrollPane();
-			populateCreationsWindow(creationsWindow, listOfCreations, numberOfCreations);
-//			creationsWindow.setPrefWidth(sceneWidth);
-			
-			root.setCenter(creationsWindow);
-		}
+		Node creationsPane = createCreationsPane();
+		root.setCenter(creationsPane);
 		
 		//scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 		primaryStage.setScene(scene);
@@ -141,7 +122,8 @@ public class Main extends Application {
 		btnDelete.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
-				String selectedCreation = creationsGroup.getSelectedToggle().getUserData().toString();
+				Toggle selectedButton = creationsGroup.getSelectedToggle();
+				String selectedCreation = selectedButton.getUserData().toString();
 				if (selectedCreation != "No Creation Selected") {
 					Alert alert = new Alert(AlertType.CONFIRMATION, "Are you sure you want to delete " + selectedCreation + "?");
 					Optional<ButtonType> result = alert.showAndWait();
@@ -150,10 +132,40 @@ public class Main extends Application {
 					}
 				}
 				
+				Node creationsPane = createCreationsPane();
+				root.setCenter(creationsPane);
+				
 				System.out.println("Delete");
 				System.out.println(selectedCreation);
 			}
 		});
+	}
+	
+	private Node createCreationsPane() {
+		noSelection.setUserData("No Creation Selected");
+		noSelection.setToggleGroup(creationsGroup);
+	    noSelection.setSelected(true);
+		
+		// The first element in listOfCreations is the number of creations it contains
+		List<String> listOfCreations = runBashCommand(new String[]{"/bin/bash", "-c", "./script.sh l"});
+//		for (String line : listOfCreations) {
+//			System.out.println(line);
+//		}
+		int numberOfCreations = Integer.parseInt(listOfCreations.get(0));
+		
+		if (numberOfCreations == 0) {
+			Label noCreations = new Label("There are currently no creations.");
+			noCreations.setScaleX(3);
+			noCreations.setScaleY(3);
+			
+			return noCreations;
+		} else {
+			ScrollPane creationsWindow = new ScrollPane();
+			populateCreationsWindow(creationsWindow, listOfCreations, numberOfCreations);
+//			creationsWindow.setPrefWidth(sceneWidth);
+			
+			return creationsWindow;
+		}
 	}
 	
 	private void populateCreationsWindow(ScrollPane creationsWindow, List<String> listOfCreations, int numberOfCreations) {
