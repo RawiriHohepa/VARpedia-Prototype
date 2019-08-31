@@ -50,7 +50,10 @@ public class Main extends Application {
 
 	public static void main(String[] args) {
 		List<String> output = buildProcess(new String[]{"/bin/bash", "-c", "./script.sh p"});
-		System.out.println(output);
+		for (String line : output) {
+			System.out.println(line);
+		}
+		
 		
 		launch(args);
 	}
@@ -58,7 +61,7 @@ public class Main extends Application {
 	private static List<String> buildProcess(String[] command) {
 		List<String> output = new ArrayList<String>();
 		try {
-			ProcessBuilder builder = new ProcessBuilder();
+			ProcessBuilder builder = new ProcessBuilder(command);
 			Process process = builder.start();
 			InputStream stdout = process.getInputStream();
 //			InputStream stderr = process.getErrorStream();
