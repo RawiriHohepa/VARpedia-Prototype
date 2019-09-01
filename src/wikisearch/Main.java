@@ -81,6 +81,16 @@ public class Main extends Application {
 		launch(args);
 	}
 
+	private List<String> runBashCommand(String[] command) {
+		BashCommand bashCommand = new BashCommand(command);
+		team.submit(bashCommand);
+				try {
+					return  bashCommand.get();
+				} catch (Exception e) {
+					return null;
+				}
+	}
+
 	private void populateButtonsPane(FlowPane buttonsPane, double buttonsWidth) {
 		buttonsPane.getChildren().add(btnCreate);
 		buttonsPane.getChildren().add(btnPlay);
