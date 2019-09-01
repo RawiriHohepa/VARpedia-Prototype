@@ -117,6 +117,31 @@ public class Main extends Application {
 					searchTermInput.setHeaderText("Term not found, please try again.");
 					searchResult = wikiSearch(searchTermInput);
 				}
+				if (searchResult.get(0).equals("(Quitting)")) {
+					return;
+				}
+
+				int totalSentences = Integer.parseInt(searchResult.get(0));
+				
+				
+				
+				TextInputDialog includedSentencesInput = new TextInputDialog("2");
+				includedSentencesInput.setTitle("Choose Sentences");
+				includedSentencesInput.setHeaderText("How many sentences would you like to include? [1-" + totalSentences + "]:");
+				
+				String content = "";
+				for (int i = 1; i <= totalSentences; i++) {
+					content += searchResult.get(i) + "\n";
+				}
+				includedSentencesInput.setContentText(content);	
+				
+				int includedSentences = getIncludedSentences(includedSentencesInput);
+				
+				while (includedSentences < 1 || includedSentences > totalSentences) {
+					includedSentencesInput.setHeaderText("Number not within range of sentences [1-" + totalSentences + "], please try again.");
+					
+					includedSentences = getIncludedSentences(includedSentencesInput);
+				}
 			}
 		});
 		
@@ -220,5 +245,20 @@ public class Main extends Application {
 		}
 		
 		return searchResult;
+	}
+	
+	private int getIncludedSentences (TextInputDialog includedSentencesInput) {
+		int includedSentences = -1;
+		Optional<String> result = includedSentencesInput.showAndWait();
+		if (result.isPresent()) {
+			String searchTerm = result.get();
+
+			if (!searchTerm.equals("")) {
+				includedSentences = Integer.parseInt(searchTerm);
+				System.out.println("" + includedSentences);
+			}
+		}
+		
+		return includedSentences;
 	}
 }
