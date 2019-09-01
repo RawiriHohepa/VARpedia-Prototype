@@ -50,7 +50,6 @@ delete() {
 }
 
 search() {
-	echo "create" $1
 	if [ -d "$TMP_DIR" ]
 	then
 		rm -rf $TMP_DIR

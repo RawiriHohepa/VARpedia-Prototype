@@ -106,24 +106,16 @@ public class Main extends Application {
 		
 		btnCreate.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
-			public void handle(ActionEvent event) {
-				System.out.println("Create");
-				
+			public void handle(ActionEvent event) {				
 				TextInputDialog searchTermInput = new TextInputDialog("Apple");
 				searchTermInput.setTitle("Enter Search Term");
-				searchTermInput.setHeaderText("Enter the term you would like to search");
+				searchTermInput.setHeaderText("Enter the term you would like to search:");
 				
-				Optional<String> result = searchTermInput.showAndWait();
-				if (result.isPresent()) {
-					String searchTerm = result.get();
-					
-					if (!searchTerm.equals("")) {
-						List<String> output = runBashCommand(new String[]{"/bin/bash", "-c", "./script.sh s " + searchTerm});
-						
-						for (String line : output) {
-							System.out.println(line);
-						}
-					}
+				List<String> searchResult = wikiSearch(searchTermInput);			
+				
+				while (searchResult.get(0).equals("Term not found")) {
+					searchTermInput.setHeaderText("Term not found, please try again.");
+					searchResult = wikiSearch(searchTermInput);
 				}
 			}
 		});
@@ -206,5 +198,27 @@ public class Main extends Application {
 //			button.setStyle("");
 //			button.getStyleClass().add("class_name");
 		}
+	}
+
+	private List<String> wikiSearch(TextInputDialog searchTermInput) {
+		List<String> searchResult = new ArrayList<String>();
+		Optional<String> result = searchTermInput.showAndWait();
+		if (result.isPresent()) {
+			String searchTerm = result.get();
+
+			if (!searchTerm.equals("")) {
+				searchResult = runBashCommand(new String[]{"/bin/bash", "-c", "./script.sh s " + searchTerm});
+				
+				for (String line : searchResult) {
+					System.out.println(line);
+				}
+			} else {
+				searchResult.add("Term not found");
+			}
+		} else {
+			searchResult.add("(Quitting)");
+		}
+		
+		return searchResult;
 	}
 }
