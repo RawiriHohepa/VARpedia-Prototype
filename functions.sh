@@ -49,6 +49,65 @@ delete() {
 	rm -f $selected_creation_dir
 }
 
+search() {
+	if [ -d "$TMP_DIR" ]
+	then
+		rm -rf $TMP_DIR
+	fi
+	mkdir $TMP_DIR	
+
+	search_term=$1
+	search_result=`wikit $search_term`
+	echo $search_result | grep "not found :^(" &> /dev/null
+	search_is_invalid=$?
+
+	if	[ "$search_is_invalid" -eq 0 ]
+	then
+		echo "Term not found"
+	else
+		# Separate each sentence into a new line
+		echo $search_result | sed 's/\. /.\n/g' > $FULL_SEARCH_DIR
+		
+		# Count and print the number of lines
+		total_sentences=`cat $FULL_SEARCH_DIR | wc -l`
+		echo $total_sentences
+		
+		# Print the search term
+		echo $search_term
+		
+		# Print the search result with lines numbered
+		cat -n $FULL_SEARCH_DIR
+	fi
+}
+
 create() {
-	echo "create" $1
+	search_term=$1
+	included_sentences=$2
+	creation_name=$3
+	
+	current_creation_dir=$CREATIONS_DIR"/"$creation_name.mp4
+	
+	# Save the specified range of sentences into a file to be used in text2wave
+	head -n $included_sentences $FULL_SEARCH_DIR > $PARTIAL_SEARCH_DIR
+
+	# Convert the sentences into a .wav format using festival
+	text2wave -o $AUDIO_DIR $PARTIAL_SEARCH_DIR
+	
+	if [ ! -d "$CREATIONS_DIR" ]
+	then
+		mkdir $CREATIONS_DIR
+	fi
+
+	# Create the .mp4 creation using the .wav sound file and search term
+	ffmpeg -f lavfi -i color=c=blue:s=320x240:d=5 -i $AUDIO_DIR -strict -2 -vf "drawtext=fontfile=$FONT_DIR:fontsize=30: fontcolor=white:x=(w-text_w)/2:y=(h-text_h)/2:text='$search_term'" $current_creation_dir &> /dev/null
+	
+	if [ "$?" -eq 0 ]
+	then
+		echo "Creation was successfully created."
+	else
+		echo "Creation was not successfully created." >&2
+	fi
+
+	# Delete the temporary text and .wav files
+	rm -rf $TMP_DIR
 }

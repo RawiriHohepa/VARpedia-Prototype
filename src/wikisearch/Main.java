@@ -7,6 +7,8 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javafx.application.Application;
 import javafx.event.ActionEvent;
@@ -17,10 +19,12 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.BorderPane;
@@ -104,8 +108,80 @@ public class Main extends Application {
 		
 		btnCreate.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
-			public void handle(ActionEvent event) {
-				System.out.println("Create");
+			public void handle(ActionEvent event) {				
+				TextInputDialog searchTermInput = new TextInputDialog("Apple");
+				searchTermInput.setTitle("Enter Search Term");
+				searchTermInput.setHeaderText("Enter the term you would like to search:");
+				
+				List<String> searchResult = wikiSearch(searchTermInput);			
+				
+				while (searchResult.get(0).equals("Term not found")) {
+					searchTermInput.setHeaderText("Term not found, please try again.");
+					searchResult = wikiSearch(searchTermInput);
+				}
+				if (searchResult.get(0).equals("(Quitting)")) {
+					return;
+				}
+
+				int totalSentences = Integer.parseInt(searchResult.get(0));
+				String searchTerm = searchResult.get(1);
+				searchResult.remove(1);
+				searchResult.remove(0);
+				
+				
+				
+				TextInputDialog includedSentencesInput = new TextInputDialog("2");
+				includedSentencesInput.setTitle("Choose Sentences");
+				includedSentencesInput.setHeaderText("How many sentences would you like to include? [1-" + totalSentences + "]:");
+				
+				String content = "";
+				for (int i = 0; i < totalSentences; i++) {
+					content += searchResult.get(i) + "\n";
+				}
+				includedSentencesInput.setContentText(content);	
+				
+				int includedSentences = getIncludedSentences(includedSentencesInput);
+				
+				while (includedSentences < 1 || includedSentences > totalSentences) {
+					if (includedSentences == -100000) {
+						return;
+					}
+					includedSentencesInput.setHeaderText("Number not within range of sentences [1-" + totalSentences + "], please try again.");
+					
+					includedSentences = getIncludedSentences(includedSentencesInput);
+				}
+				
+				
+				
+				TextInputDialog creationNameInput = new TextInputDialog("Apple1");
+				creationNameInput.setTitle("Enter Creation Name");
+				creationNameInput.setHeaderText("What would you like to name your creation?");
+				
+				List<String> listOfCreations = runBashCommand(new String[]{"/bin/bash", "-c", "./script.sh l"});
+				Pattern p = Pattern.compile("[a-zA-Z1-9_-]+");
+				
+				String creationName = getCreationName(creationNameInput);
+				
+				Matcher m = p.matcher(creationName);
+				boolean b = m.matches();
+				
+				while (!creationName.equals("(Quitting)") && (!b || listOfCreations.contains(creationName))) {
+					creationNameInput.setHeaderText("Invalid creation name, please try again.");
+					
+					creationName = getCreationName(creationNameInput);
+					
+					m = p.matcher(creationName);
+					b = m.matches();
+				}
+				if (searchResult.get(0).equals("(Quitting)")) {
+					return;
+				}
+				
+				
+				runBashCommand(new String[]{"/bin/bash", "-c", "./script.sh c " + searchTerm + " " + includedSentences + " " + creationName});
+				// Update creations window
+				Node creationsPane = createCreationsPane();
+				root.setCenter(creationsPane);
 			}
 		});
 		
@@ -128,15 +204,13 @@ public class Main extends Application {
 					Alert alert = new Alert(AlertType.CONFIRMATION, "Are you sure you want to delete " + selectedCreation + "?");
 					Optional<ButtonType> result = alert.showAndWait();
 					if (result.isPresent() && result.get() == ButtonType.OK) {
-						System.out.println(runBashCommand(new String[]{"/bin/bash", "-c", "./script.sh d " + selectedCreation}));
+						runBashCommand(new String[]{"/bin/bash", "-c", "./script.sh d " + selectedCreation});
 					}
 				}
 				
+				// Update creations window
 				Node creationsPane = createCreationsPane();
 				root.setCenter(creationsPane);
-				
-				System.out.println("Delete");
-				System.out.println(selectedCreation);
 			}
 		});
 	}
@@ -151,6 +225,7 @@ public class Main extends Application {
 //		for (String line : listOfCreations) {
 //			System.out.println(line);
 //		}
+		
 		int numberOfCreations = Integer.parseInt(listOfCreations.get(0));
 		
 		if (numberOfCreations == 0) {
@@ -188,5 +263,58 @@ public class Main extends Application {
 //			button.setStyle("");
 //			button.getStyleClass().add("class_name");
 		}
+	}
+
+	private List<String> wikiSearch(TextInputDialog searchTermInput) {
+		List<String> searchResult = new ArrayList<String>();
+		Optional<String> result = searchTermInput.showAndWait();
+		if (result.isPresent()) {
+			String searchTerm = result.get();
+
+			if (!searchTerm.equals("")) {
+				searchResult = runBashCommand(new String[]{"/bin/bash", "-c", "./script.sh s " + searchTerm});
+				
+				for (String line : searchResult) {
+					System.out.println(line);
+				}
+			} else {
+				searchResult.add("Term not found");
+			}
+		} else {
+			searchResult.add("(Quitting)");
+		}
+		
+		return searchResult;
+	}
+	
+	private int getIncludedSentences(TextInputDialog includedSentencesInput) {
+		int includedSentences = -1;
+		Optional<String> result = includedSentencesInput.showAndWait();
+		if (result.isPresent()) {
+			String searchTerm = result.get();
+
+			if (!searchTerm.equals("")) {
+				includedSentences = Integer.parseInt(searchTerm);
+				System.out.println("" + includedSentences);
+			}
+		} else {
+			includedSentences = -100000;
+		}
+		
+		return includedSentences;
+	}
+	
+	private String getCreationName(TextInputDialog creationNameInput) {
+		String creationName = "";
+		
+		Optional<String> result = creationNameInput.showAndWait();
+		if (result.isPresent()) {
+			creationName = result.get();
+			System.out.println(creationName);
+		} else {
+			creationName = "(Quitting)";
+		}
+		
+		return creationName;
 	}
 }
