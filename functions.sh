@@ -63,7 +63,7 @@ search() {
 
 	if	[ "$search_is_invalid" -eq 0 ]
 	then
-		echo "Term not found"
+		echo "(Term not found)"
 	else
 		# Separate each sentence into a new line
 		echo $search_result | sed 's/\. /.\n/g' > $FULL_SEARCH_DIR
