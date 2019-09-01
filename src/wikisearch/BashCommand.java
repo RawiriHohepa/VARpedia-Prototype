@@ -6,7 +6,6 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-import javafx.application.Platform;
 import javafx.concurrent.Task;
 
 public class BashCommand extends Task<List<String>> {
@@ -19,12 +18,16 @@ public class BashCommand extends Task<List<String>> {
 	
 	@Override
 	protected List<String> call() throws Exception {
+		return runBashCommand(_command);
+	}
+
+	// A static method used to pass bash commands into the shell and return the stdout
+	public static List<String> runBashCommand(String[] command) {
 		List<String> output = new ArrayList<String>();
 		try {
-			ProcessBuilder builder = new ProcessBuilder(_command);
+			ProcessBuilder builder = new ProcessBuilder(command);
 			Process process = builder.start();
 			InputStream stdout = process.getInputStream();
-//			InputStream stderr = process.getErrorStream();
 			BufferedReader stdoutBuffered = new BufferedReader(new InputStreamReader(stdout));
 			String line = null;
 			while ((line = stdoutBuffered.readLine()) != null ) {
@@ -35,5 +38,4 @@ public class BashCommand extends Task<List<String>> {
 		}
 		return output;
 	}
-
 }

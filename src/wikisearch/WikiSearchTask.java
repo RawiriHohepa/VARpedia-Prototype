@@ -1,12 +1,8 @@
 package wikisearch;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-import javafx.application.Platform;
 import javafx.concurrent.Task;
 
 public class WikiSearchTask extends Task<List<String>> {
@@ -22,30 +18,21 @@ public class WikiSearchTask extends Task<List<String>> {
 		List<String> searchResult = new ArrayList<String>();
 
 		if (!_searchTerm.equals("")) {
-			searchResult = runBashCommand(new String[]{"/bin/bash", "-c", "./script.sh s " + _searchTerm});
+			// 
+			/**
+			 * Runs a bash function that performs a wiki search using wikit, 
+			 * stores the results (if any) in a temporary text folder, and passes the result back here
+			 * Returns a list containing the results of the wiki search of the specified term,
+			 * with one sentence per line
+			 * The first element contains the number of sentences
+			 * If the term was not found, returns a list with only one element: "(Term not found)"
+			 */
+			searchResult = BashCommand.runBashCommand(new String[]{"/bin/bash", "-c", "./script.sh s " + _searchTerm});
 		} else {
 			// No search term entered, therefore no term found
 			searchResult.add("(Term not found)");
 		}
 
 		return searchResult;
-	}
-	
-	protected List<String> runBashCommand(String[] command) {
-		List<String> output = new ArrayList<String>();
-		try {
-			ProcessBuilder builder = new ProcessBuilder(command);
-			Process process = builder.start();
-			InputStream stdout = process.getInputStream();
-//			InputStream stderr = process.getErrorStream();
-			BufferedReader stdoutBuffered = new BufferedReader(new InputStreamReader(stdout));
-			String line = null;
-			while ((line = stdoutBuffered.readLine()) != null ) {
-				output.add(line);
-			}
-		} catch(Exception e) {
-			e.printStackTrace();
-		}
-		return output;
 	}
 }
