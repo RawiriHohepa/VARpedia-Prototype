@@ -1,19 +1,5 @@
 #!/bin/bash
 
-print_menu() {
-	echo "=============================================================="
-	echo "Welcome to the Wiki-Speak Authoring Tool"
-	echo "=============================================================="
-	echo "Please select from one of the following options:"
-	echo "(l)ist existing creations"
-	echo "(p)lay an existing creation"
-	echo "(d)elete an existing creation"
-	echo "(c)reate a new creation"
-	echo "(q)uit authoring tool"
-
-	return 0
-}
-
 list() {
 	# If there is no creations folder
 	if [ ! -d "$CREATIONS_DIR" ]
@@ -63,7 +49,7 @@ search() {
 
 	if	[ "$search_is_invalid" -eq 0 ]
 	then
-		echo "Term not found"
+		echo "(Term not found)"
 	else
 		# Separate each sentence into a new line
 		echo $search_result | sed 's/\. /.\n/g' > $FULL_SEARCH_DIR
@@ -71,9 +57,6 @@ search() {
 		# Count and print the number of lines
 		total_sentences=`cat $FULL_SEARCH_DIR | wc -l`
 		echo $total_sentences
-		
-		# Print the search term
-		echo $search_term
 		
 		# Print the search result with lines numbered
 		cat -n $FULL_SEARCH_DIR
