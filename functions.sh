@@ -49,6 +49,31 @@ delete() {
 	rm -f $selected_creation_dir
 }
 
-create() {
+search() {
 	echo "create" $1
+	if [ -d "$TMP_DIR" ]
+	then
+		rm -rf $TMP_DIR
+	fi
+	mkdir $TMP_DIR	
+
+	search_term=$1
+	search_result=`wikit $search_term`
+	echo $search_result | grep "not found :^(" &> /dev/null
+	search_is_invalid=$?
+
+	if	[ "$search_is_invalid" -eq 0 ]
+	then
+		echo "Term not found"
+	else
+		# Separate each sentence into a new line
+		echo $search_result | sed 's/\. /.\n/g' > $FULL_SEARCH_DIR
+		
+		# Count and print the number of lines
+		total_sentences=`cat $FULL_SEARCH_DIR | wc -l`
+		echo $total_sentences
+		
+		# Print the search result with lines numbered
+		cat -n $FULL_SEARCH_DIR
+	fi
 }

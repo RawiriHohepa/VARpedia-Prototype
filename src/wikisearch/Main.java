@@ -17,10 +17,12 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.BorderPane;
@@ -106,6 +108,23 @@ public class Main extends Application {
 			@Override
 			public void handle(ActionEvent event) {
 				System.out.println("Create");
+				
+				TextInputDialog searchTermInput = new TextInputDialog("Apple");
+				searchTermInput.setTitle("Enter Search Term");
+				searchTermInput.setHeaderText("Enter the term you would like to search");
+				
+				Optional<String> result = searchTermInput.showAndWait();
+				if (result.isPresent()) {
+					String searchTerm = result.get();
+					
+					if (!searchTerm.equals("")) {
+						List<String> output = runBashCommand(new String[]{"/bin/bash", "-c", "./script.sh s " + searchTerm});
+						
+						for (String line : output) {
+							System.out.println(line);
+						}
+					}
+				}
 			}
 		});
 		
@@ -128,15 +147,13 @@ public class Main extends Application {
 					Alert alert = new Alert(AlertType.CONFIRMATION, "Are you sure you want to delete " + selectedCreation + "?");
 					Optional<ButtonType> result = alert.showAndWait();
 					if (result.isPresent() && result.get() == ButtonType.OK) {
-						System.out.println(runBashCommand(new String[]{"/bin/bash", "-c", "./script.sh d " + selectedCreation}));
+						runBashCommand(new String[]{"/bin/bash", "-c", "./script.sh d " + selectedCreation});
 					}
 				}
 				
+				// Update creations window
 				Node creationsPane = createCreationsPane();
 				root.setCenter(creationsPane);
-				
-				System.out.println("Delete");
-				System.out.println(selectedCreation);
 			}
 		});
 	}
@@ -151,6 +168,7 @@ public class Main extends Application {
 //		for (String line : listOfCreations) {
 //			System.out.println(line);
 //		}
+		
 		int numberOfCreations = Integer.parseInt(listOfCreations.get(0));
 		
 		if (numberOfCreations == 0) {

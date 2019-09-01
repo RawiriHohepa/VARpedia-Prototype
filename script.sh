@@ -13,21 +13,25 @@ source ./functions.sh
 #print_menu
 
 case $1 in
-	l|L)
+	l)
 		list
 		;;
-	p|P)
+	p)
 		selected_creation=$2		
 		play $selected_creation
 		;;
-	d|D)
+	d)
 		selected_creation=$2
 		delete $selected_creation
 		;;
-	c|C)
+	s)
+		search_term=$2
+		search $search_term
+		;;
+	c)
 		create
 		;;
-	q|Q)
+	q)
 		echo "Thank you for using the Wiki-Speak Authoring Tool."
 		;;
 	*)
