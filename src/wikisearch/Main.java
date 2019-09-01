@@ -7,6 +7,8 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javafx.application.Application;
 import javafx.event.ActionEvent;
@@ -122,6 +124,9 @@ public class Main extends Application {
 				}
 
 				int totalSentences = Integer.parseInt(searchResult.get(0));
+				String searchTerm = searchResult.get(1);
+				searchResult.remove(1);
+				searchResult.remove(0);
 				
 				
 				
@@ -130,7 +135,7 @@ public class Main extends Application {
 				includedSentencesInput.setHeaderText("How many sentences would you like to include? [1-" + totalSentences + "]:");
 				
 				String content = "";
-				for (int i = 1; i <= totalSentences; i++) {
+				for (int i = 0; i < totalSentences; i++) {
 					content += searchResult.get(i) + "\n";
 				}
 				includedSentencesInput.setContentText(content);	
@@ -138,10 +143,45 @@ public class Main extends Application {
 				int includedSentences = getIncludedSentences(includedSentencesInput);
 				
 				while (includedSentences < 1 || includedSentences > totalSentences) {
+					if (includedSentences == -100000) {
+						return;
+					}
 					includedSentencesInput.setHeaderText("Number not within range of sentences [1-" + totalSentences + "], please try again.");
 					
 					includedSentences = getIncludedSentences(includedSentencesInput);
 				}
+				
+				
+				
+				TextInputDialog creationNameInput = new TextInputDialog("Apple1");
+				creationNameInput.setTitle("Enter Creation Name");
+				creationNameInput.setHeaderText("What would you like to name your creation?");
+				
+				List<String> listOfCreations = runBashCommand(new String[]{"/bin/bash", "-c", "./script.sh l"});
+				Pattern p = Pattern.compile("[a-zA-Z1-9_-]+");
+				
+				String creationName = getCreationName(creationNameInput);
+				
+				Matcher m = p.matcher(creationName);
+				boolean b = m.matches();
+				
+				while (!creationName.equals("(Quitting)") && (!b || listOfCreations.contains(creationName))) {
+					creationNameInput.setHeaderText("Invalid creation name, please try again.");
+					
+					creationName = getCreationName(creationNameInput);
+					
+					m = p.matcher(creationName);
+					b = m.matches();
+				}
+				if (searchResult.get(0).equals("(Quitting)")) {
+					return;
+				}
+				
+				
+				runBashCommand(new String[]{"/bin/bash", "-c", "./script.sh c " + searchTerm + " " + includedSentences + " " + creationName});
+				// Update creations window
+				Node creationsPane = createCreationsPane();
+				root.setCenter(creationsPane);
 			}
 		});
 		
@@ -247,7 +287,7 @@ public class Main extends Application {
 		return searchResult;
 	}
 	
-	private int getIncludedSentences (TextInputDialog includedSentencesInput) {
+	private int getIncludedSentences(TextInputDialog includedSentencesInput) {
 		int includedSentences = -1;
 		Optional<String> result = includedSentencesInput.showAndWait();
 		if (result.isPresent()) {
@@ -257,8 +297,24 @@ public class Main extends Application {
 				includedSentences = Integer.parseInt(searchTerm);
 				System.out.println("" + includedSentences);
 			}
+		} else {
+			includedSentences = -100000;
 		}
 		
 		return includedSentences;
+	}
+	
+	private String getCreationName(TextInputDialog creationNameInput) {
+		String creationName = "";
+		
+		Optional<String> result = creationNameInput.showAndWait();
+		if (result.isPresent()) {
+			creationName = result.get();
+			System.out.println(creationName);
+		} else {
+			creationName = "(Quitting)";
+		}
+		
+		return creationName;
 	}
 }

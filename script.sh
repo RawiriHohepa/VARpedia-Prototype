@@ -29,7 +29,10 @@ case $1 in
 		search $search_term
 		;;
 	c)
-		create
+		search_term=$2
+		included_sentences=$3
+		creation_name=$4
+		create $search_term $included_sentences $creation_name
 		;;
 	q)
 		echo "Thank you for using the Wiki-Speak Authoring Tool."
@@ -37,4 +40,4 @@ case $1 in
 	*)
 		echo "Invalid selection, please try again."
 		;;
-	esac
+esac
